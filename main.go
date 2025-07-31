@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -46,16 +45,16 @@ func parseChatID(s string) int64 {
 
 func loadState(filename string) BotState {
 	var state BotState
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		log.Printf("Could not read state file, starting fresh: %v", err)
-		return BotState{LastMessageTime: time.Now().Add(-72 * time.Hour)} // Start immediately
+		return BotState{LastMessageTime: time.Now()} // Start the 3-day cycle from now
 	}
 	
 	err = json.Unmarshal(data, &state)
 	if err != nil {
 		log.Printf("Could not parse state file, starting fresh: %v", err)
-		return BotState{LastMessageTime: time.Now().Add(-72 * time.Hour)}
+		return BotState{LastMessageTime: time.Now()} // Start the 3-day cycle from now
 	}
 	
 	return state
@@ -67,7 +66,7 @@ func saveState(filename string, state BotState) error {
 		return err
 	}
 	
-	return ioutil.WriteFile(filename, data, 0644)
+	return os.WriteFile(filename, data, 0644)
 }
 
 func main() {
